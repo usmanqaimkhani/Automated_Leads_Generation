@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automated Leads Generator</title>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --warning: #f72585;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 2.2rem;
+        }
+        
+        .description {
+            margin-top: 10px;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .input-section {
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        textarea, input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(72, 149, 239, 0.2);
+        }
+        
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+        
+        .btn:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .results-section {
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            display: none;
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .export-btn {
+            background-color: var(--success);
+        }
+        
+        .export-btn:hover {
+            background-color: #3aa8d8;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f2f2f2;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .status {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        
+        .progress-bar {
+            flex-grow: 1;
+            height: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            margin: 0 15px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: var(--accent);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .status-text {
+            font-weight: 600;
+            min-width: 120px;
+            text-align: right;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--accent);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            color: var(--warning);
+            font-weight: 600;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #fff5f7;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .instructions {
+            background-color: #e9f5ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--accent);
+        }
+        
+        .instructions h3 {
+            margin-top: 0;
+            color: var(--secondary);
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .tab-container {
+            margin-bottom: 20px;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+            margin-right: 5px;
+            background-color: #f1f1f1;
+            transition: all 0.3s;
+        }
+        
+        .tab:hover {
+            background-color: #e9ecef;
+        }
+        
+        .tab.active {
+            background-color: white;
+            border-color: #ddd;
+            border-bottom: 1px solid white;
+            margin-bottom: -1px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px 0;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            header {
+                padding: 15px 0;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .input-section, .results-section {
+                padding: 15px;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+                font-size: 14px;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            .tab {
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Automated Leads Generator</h1>
+            <p class="description">Collect emails, phone numbers, social media handles, and website information from multiple domains</p>
+        </header>
+        
+        <div class="instructions">
+            <h3>How to use this tool:</h3>
+            <ol>
+                <li>Enter website URLs (one per line) in the text area or upload a text file with URLs</li>
+                <li>Click "Generate Leads" to start the collection process</li>
+                <li>View and export the results to Excel when complete</li>
+            </ol>
+            <p><strong>Note:</strong> The backend server must be running at <code>http://localhost:3000</code></p>
+        </div>
+        
+        <div class="tab-container">
+            <div class="tabs">
+                <div class="tab active" data-tab="urls">Enter URLs</div>
+                <div class="tab" data-tab="file">Upload File</div>
+            </div>
+            
+            <div class="tab-content active" id="urls-tab">
+                <div class="input-section">
+                    <div class="input-group">
+                        <label for="websiteUrls">Enter Website URLs (one per line):</label>
+                        <textarea id="websiteUrls" placeholder="https://example.com&#10;https://anothersite.com&#10;https://yetanother.org"></textarea>
+                    </div>
+                    <button id="generateBtn" class="btn">Generate Leads</button>
+                    <div class="error" id="urlError"></div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="file-tab">
+                <div class="input-section">
+                    <div class="input-group">
+                        <label for="urlFile">Upload a text file with URLs (one per line):</label>
+                        <input type="file" id="urlFile" accept=".txt,.csv">
+                    </div>
+                    <button id="generateFileBtn" class="btn">Generate Leads from File</button>
+                    <div class="error" id="fileError"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="loading" id="loadingIndicator">
+            <div class="spinner"></div>
+            <p>Collecting leads, please wait...</p>
+            <div class="status">
+                <span id="processedCount">0</span> of <span id="totalCount">0</span> websites processed
+                <div class="progress-bar">
+                    <div class="progress" id="progressBar"></div>
+                </div>
+                <span class="status-text" id="statusText">Initializing</span>
+            </div>
+        </div>
+        
+        <div class="error" id="apiError"></div>
+        
+        <div class="results-section" id="resultsSection">
+            <div class="results-header">
+                <h2>Generated Leads</h2>
+                <button id="exportBtn" class="btn export-btn">Export to Excel</button>
+            </div>
+            <div class="table-container">
+                <table id="resultsTable">
+                    <thead>
+                        <tr>
+                            <th>Website</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Social Media</th>
+                            <th>Domain</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody">
+                        <!-- Results will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab switching
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs and content
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // Add active class to clicked tab and corresponding content
+                    tab.classList.add('active');
+                    const tabId = tab.getAttribute('data-tab');
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                });
+            });
+            
+            // Generate leads from textarea
+            document.getElementById('generateBtn').addEventListener('click', generateLeads);
+            document.getElementById('generateFileBtn').addEventListener('click', generateLeadsFromFile);
+            document.getElementById('exportBtn').addEventListener('click', exportToExcel);
+            
+            async function generateLeads() {
+                const urlInput = document.getElementById('websiteUrls').value.trim();
+                const errorElement = document.getElementById('urlError');
+                
+                if (!urlInput) {
+                    showError(errorElement, "Please enter at least one website URL");
+                    return;
+                }
+                
+                clearError(errorElement);
+                const urls = urlInput.split('\n')
+                    .map(url => url.trim())
+                    .filter(url => url.length > 0);
+                
+                if (urls.length === 0) {
+                    showError(errorElement, "No valid URLs found");
+                    return;
+                }
+                
+                await fetchLeadsFromBackend(urls);
+            }
+            
+            async function generateLeadsFromFile() {
+                const fileInput = document.getElementById('urlFile');
+                const errorElement = document.getElementById('fileError');
+                
+                if (!fileInput.files || fileInput.files.length === 0) {
+                    showError(errorElement, "Please select a file to upload");
+                    return;
+                }
+                
+                clearError(errorElement);
+                const file = fileInput.files[0];
+                
+                try {
+                    const content = await readFileAsText(file);
+                    const urls = content.split('\n')
+                        .map(url => url.trim())
+                        .filter(url => url.length > 0);
+                    
+                    if (urls.length === 0) {
+                        showError(errorElement, "No valid URLs found in the file");
+                        return;
+                    }
+                    
+                    await fetchLeadsFromBackend(urls);
+                } catch (error) {
+                    showError(errorElement, "Error reading file: " + error.message);
+                }
+            }
+            
+            function readFileAsText(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = event => resolve(event.target.result);
+                    reader.onerror = error => reject(error);
+                    reader.readAsText(file);
+                });
+            }
+            
+            function showError(element, message) {
+                element.textContent = message;
+                element.style.display = 'block';
+            }
+            
+            function clearError(element) {
+                element.textContent = '';
+                element.style.display = 'none';
+            }
+            
+            function showLoading(total) {
+                document.getElementById('loadingIndicator').style.display = 'block';
+                document.getElementById('resultsSection').style.display = 'none';
+                document.getElementById('apiError').style.display = 'none';
+                document.getElementById('totalCount').textContent = total;
+                document.getElementById('processedCount').textContent = '0';
+                document.getElementById('progressBar').style.width = '0%';
+                document.getElementById('statusText').textContent = 'Initializing';
+            }
+            
+            function hideLoading() {
+                document.getElementById('loadingIndicator').style.display = 'none';
+            }
+            
+            function updateProgress(current, total, status) {
+                document.getElementById('processedCount').textContent = current;
+                const percentage = Math.round((current / total) * 100);
+                document.getElementById('progressBar').style.width = `${percentage}%`;
+                document.getElementById('statusText').textContent = status || 'Processing';
+            }
+            
+            function showApiError(message) {
+                const errorElement = document.getElementById('apiError');
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+            }
+            
+            function displayResults(data) {
+                const tbody = document.getElementById('resultsBody');
+                tbody.innerHTML = '';
+                
+                if (!Array.isArray(data)) {
+                    showApiError("Invalid data received from server");
+                    return;
+                }
+                
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    
+                    // Determine status cell content
+                    let statusCell;
+                    if (item.status === 'success') {
+                        statusCell = '<span style="color: green;">✓ Success</span>';
+                    } else {
+                        statusCell = `<span style="color: red;">✗ Failed: ${item.error || 'Unknown error'}</span>`;
+                    }
+                    
+                    // Format emails
+                    const emails = Array.isArray(item.emails) ? 
+                        item.emails.join(', ') : 
+                        (item.emails || 'Not found');
+                    
+                    // Format phones
+                    const phones = Array.isArray(item.phones) ? 
+                        item.phones.join(', ') : 
+                        (item.phones || 'Not found');
+                    
+                    // Format social media
+                    let socialMedia = 'Not found';
+                    if (item.social && typeof item.social === 'object') {
+                        socialMedia = Object.entries(item.social)
+                            .map(([platform, url]) => {
+                                if (url && url !== 'Not found') {
+                                    return `<a href="${url}" target="_blank">${platform}</a>`;
+                                }
+                                return platform;
+                            })
+                            .join(', ');
+                    }
+                    
+                    row.innerHTML = `
+                        <td><a href="${item.website}" target="_blank">${item.website}</a></td>
+                        <td>${emails}</td>
+                        <td>${phones}</td>
+                        <td>${socialMedia}</td>
+                        <td>${item.domain || 'N/A'}</td>
+                        <td>${statusCell}</td>
+                    `;
+                    
+                    tbody.appendChild(row);
+                });
+                
+                document.getElementById('resultsSection').style.display = 'block';
+            }
+            
+            function exportToExcel() {
+                const table = document.getElementById('resultsTable');
+                const workbook = XLSX.utils.table_to_book(table);
+                XLSX.writeFile(workbook, 'leads_export.xlsx');
+            }
+            
+            async function fetchLeadsFromBackend(urls) {
+                showLoading(urls.length);
+                document.getElementById('apiError').style.display = 'none';
+                
+                try {
+                    const response = await fetch('http://localhost:3000/api/scrape', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ urls })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    // Update progress as we process results
+                    data.forEach((item, index) => {
+                        updateProgress(index + 1, urls.length, `Processed ${item.website}`);
+                    });
+                    
+                    displayResults(data);
+                } catch (error) {
+                    console.error('API Error:', error);
+                    showApiError(`Failed to fetch leads: ${error.message}`);
+                } finally {
+                    hideLoading();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
